@@ -2,6 +2,8 @@ from pydantic import BaseModel, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
 
 class RunConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -19,19 +21,20 @@ class DataBaseConfig(BaseModel):
     pool_size: int = 50
     max_overflow: int = 10
 
+
 class GigachatConfig(BaseModel):
     credentials: str
     scope: str
-    ca_bundle_file: str = "certs/russian_trusted_root_ca.crt"
+    ca_bundle_file: str = str(BASE_DIR / "certs" / "russian_trusted_root_ca.crt")
+
 
 class BotConfig(BaseModel):
     token: str
 
 
-
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=Path(__file__).parent.parent.parent / ".env",
+        env_file=BASE_DIR / ".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
         env_prefix="APP_CONFIG__",
@@ -44,6 +47,4 @@ class Settings(BaseSettings):
     bot: BotConfig
 
 
-
 settings = Settings()
-print(settings.gigachat.ca_bundle_file)
