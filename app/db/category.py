@@ -7,6 +7,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .user import User
+    from .expense import Expense
 
 
 class Category(Base):
@@ -16,3 +17,4 @@ class Category(Base):
     is_harmful: Mapped[bool] = mapped_column(Boolean, default=False)
     created_via_llm: Mapped[bool] = mapped_column(Boolean, default=False)
     user: Mapped["User"] = relationship(back_populates="categories")
+    expenses: Mapped[list["Expense"]] = relationship(back_populates="category")
