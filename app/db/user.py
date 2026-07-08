@@ -5,6 +5,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .category import Category
+    from .income import Income
 
 
 class User(Base):
@@ -12,4 +13,6 @@ class User(Base):
     telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
     username: Mapped[str | None] = mapped_column(String)
     full_name: Mapped[str | None] = mapped_column(String)
+
     categories: Mapped[list["Category"]] = relationship(back_populates="user")
+    incomes: Mapped[list["Income"]] = relationship(back_populates="user")
