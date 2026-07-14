@@ -2,7 +2,7 @@ import json
 import asyncio
 from gigachat import GigaChat
 
-from core.config import settings
+from app.core.config import settings
 from app.core.llm.schemas import ExpenseParseResult
 from app.core.llm.prompts import CATEGORIZE_EXPENSE_PROMPT
 

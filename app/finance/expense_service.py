@@ -60,9 +60,11 @@ async def process_expense(
         item=parsed.item,
         llm_confidence=parsed.confidence,
     )
+
     session.add(expense)
 
     await session.commit()
     await session.refresh(expense)
+    expense.category = category
 
     return expense
