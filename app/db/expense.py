@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Numeric, Text, String, Float
+from sqlalchemy import ForeignKey, Numeric, Text, String, Float, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -19,6 +19,7 @@ class Expense(Base):
     raw_text: Mapped[str] = mapped_column(Text)
     place: Mapped[str | None] = mapped_column(String)
     item: Mapped[str | None] = mapped_column(String)
+    is_harmful: Mapped[bool] = mapped_column(Boolean, default=False)
     llm_confidence: Mapped[float] = mapped_column(Float)
 
     user: Mapped["User"] = relationship(back_populates="expenses")
