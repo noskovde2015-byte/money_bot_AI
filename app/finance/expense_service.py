@@ -57,6 +57,7 @@ async def process_expense(
         amount=parsed.amount,
         raw_text=user_text,
         place=parsed.place,
+        is_harmful=parsed.is_harmful,
         item=parsed.item,
         llm_confidence=parsed.confidence,
     )
