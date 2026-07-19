@@ -18,6 +18,9 @@ async def process_expense(
         user_text=user_text, existing_categories=existing_categories
     )
 
+    if parsed.category is None or parsed.amount is None:
+        raise ValueError("Не удалось распознать трату")
+
     category = None
 
     if parsed.is_new_category is False:

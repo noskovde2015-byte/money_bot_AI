@@ -8,6 +8,21 @@ from app.db.expense import Expense
 from app.db.category import Category
 from app.db.income import Income
 
+MONTH_NAMES_RU = {
+    1: "январь",
+    2: "февраль",
+    3: "март",
+    4: "апрель",
+    5: "май",
+    6: "июнь",
+    7: "июль",
+    8: "август",
+    9: "сентябрь",
+    10: "октябрь",
+    11: "ноябрь",
+    12: "декабрь",
+}
+
 
 async def get_total_expenses(
     user_id: int, start_date: datetime, end_date: datetime, session: AsyncSession
@@ -108,6 +123,7 @@ async def build_monthly_report(user_id: int, session: AsyncSession) -> dict:
         change_percent = None
 
     return {
+        "month_name": MONTH_NAMES_RU[today.month],
         "current_expenses": current_expenses,
         "current_incomes": current_incomes,
         "by_category": by_category,
