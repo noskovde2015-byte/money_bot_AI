@@ -133,6 +133,37 @@ async def build_monthly_report(user_id: int, session: AsyncSession) -> dict:
     }
 
 
+async def build_yearly_overview(
+    user_id: int, session: AsyncSession, year: int
+) -> list[dict]:
+    if year == datetime.now().year:
+        last_month = datetime.now().month
+    else:
+        last_month = 12
+
+    months_data = []
+
+    for month_num in range(1, last_month + 1):
+        start, end = get_month_bounds(year, month_num)
+
+        current_expenses = await get_total_expenses(user_id, start, end, session)
+        current_incomes = await get_total_incomes(user_id, start, end, session)
+        harmful = await get_harmful_expenses_total(user_id, start, end, session)
+        delta = current_incomes - current_expenses
+
+        months_data.append(
+            {
+                "month_name": MONTH_NAMES_RU[month_num],
+                "expenses": current_expenses,
+                "incomes": current_incomes,
+                "harmful": harmful,
+                "delta": delta,
+            }
+        )
+
+    return months_data
+
+
 if __name__ == "__main__":
     import asyncio
     from app.db.db_helper import db_helper
@@ -140,6 +171,13 @@ if __name__ == "__main__":
     async def test():
         async with db_helper.session_factory() as session:
             report = await build_monthly_report(user_id=1, session=session)
-            print(report)
+            print("Месячный отчёт:", report)
+
+            overview = await build_yearly_overview(
+                user_id=1, session=session, year=2026
+            )
+            print("Годовой обзор:")
+            for month in overview:
+                print(" ", month)
 
     asyncio.run(test())
