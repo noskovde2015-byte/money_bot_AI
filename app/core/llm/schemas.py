@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 class ExpenseParseResult(BaseModel):
     amount: float | None = Field(description="Сумма траты в рублях")
-    category: str = Field(description="Название категории")
+    category: str | None = Field(description="Название категории")
     is_new_category: bool = Field(
         description="True, если категория не входит в существующий список"
     )

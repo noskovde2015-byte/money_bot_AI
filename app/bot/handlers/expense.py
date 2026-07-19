@@ -20,11 +20,18 @@ async def start_expense_input(message: Message, state: FSMContext):
 async def handle_expense_text(
     message: Message, state: FSMContext, user: User, session: AsyncSession
 ):
-    expense = await process_expense(
-        user_id=user.id,
-        user_text=message.text,
-        session=session,
-    )
+    try:
+        expense = await process_expense(
+            user_id=user.id,
+            user_text=message.text,
+            session=session,
+        )
+    except ValueError:
+        await message.answer(
+            "Не удалось распознать трату. Опишите подробнее, например: «потратил 500 в магните на чипсы»"
+        )
+        return
+
     await message.answer(
         f"Внесена трата суммой {expense.amount} в категорию {expense.category.name}"
     )
