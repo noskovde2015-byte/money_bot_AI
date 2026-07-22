@@ -32,6 +32,10 @@ class BotConfig(BaseModel):
     token: str
 
 
+class WebHookConfig(BaseModel):
+    url: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
@@ -45,6 +49,7 @@ class Settings(BaseSettings):
     db: DataBaseConfig
     gigachat: GigachatConfig
     bot: BotConfig
+    webhook: WebHookConfig
 
 
 settings = Settings()
