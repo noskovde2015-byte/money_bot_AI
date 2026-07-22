@@ -9,14 +9,19 @@ from app.finance.expense_service import process_expense
 
 router = Router()
 
+BUTTON_TEXTS = {"Внести трату", "Внести доход", "Отчёт за месяц", "Годовой отчёт"}
+
 
 @router.message(F.text == "Внести трату")
 async def start_expense_input(message: Message, state: FSMContext):
-    await message.answer("Введите вашу трату. Например: потратил 500 рублей на ...")
+    await message.answer(
+        "Режим ввода трат включён. Пиши траты одну за другой, например: "
+        "«потратил 500 рублей на такси». Чтобы выйти — нажми любую другую кнопку."
+    )
     await state.set_state(ExpenseStates.waiting_for_expense_text)
 
 
-@router.message(ExpenseStates.waiting_for_expense_text)
+@router.message(ExpenseStates.waiting_for_expense_text, F.text.not_in(BUTTON_TEXTS))
 async def handle_expense_text(
     message: Message, state: FSMContext, user: User, session: AsyncSession
 ):
@@ -35,4 +40,3 @@ async def handle_expense_text(
     await message.answer(
         f"Внесена трата суммой {expense.amount} в категорию {expense.category.name}"
     )
-    await state.clear()

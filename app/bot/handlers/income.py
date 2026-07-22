@@ -9,14 +9,19 @@ from app.finance.income_service import process_income
 
 router = Router()
 
+BUTTON_TEXTS = {"Внести трату", "Внести доход", "Отчёт за месяц", "Годовой отчёт"}
+
 
 @router.message(F.text == "Внести доход")
 async def start_income_input(message: Message, state: FSMContext):
-    await message.answer("Введите свой доход (число), например: 50000")
+    await message.answer(
+        "Режим ввода доходов включён. Пиши суммы одну за другой. "
+        "Чтобы выйти — нажми любую другую кнопку."
+    )
     await state.set_state(IncomeStates.waiting_for_income_amount)
 
 
-@router.message(IncomeStates.waiting_for_income_amount)
+@router.message(IncomeStates.waiting_for_income_amount, F.text.not_in(BUTTON_TEXTS))
 async def handle_income_amount(
     message: Message, user: User, state: FSMContext, session: AsyncSession
 ):
@@ -31,4 +36,3 @@ async def handle_income_amount(
         return
 
     await message.answer(f"Записал доход: {income.amount}₽")
-    await state.clear()
