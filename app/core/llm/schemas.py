@@ -11,3 +11,8 @@ class ExpenseParseResult(BaseModel):
     item: str | None = Field(default=None, description="Что купили")
     is_harmful: bool = Field(default=False, description="Вредная ли трата для бюджета")
     confidence: float = Field(ge=0, le=1, description="Уверенность модели в разборе")
+
+
+class IncomeParseResult(BaseModel):
+    amount: float | None = Field(description="Сумма дохода в рублях")
+    source: str | None = Field(default=None, description="Возможное место дохода")

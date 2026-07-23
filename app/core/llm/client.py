@@ -3,8 +3,12 @@ import asyncio
 from gigachat import GigaChat
 
 from app.core.config import settings
-from app.core.llm.schemas import ExpenseParseResult
-from app.core.llm.prompts import CATEGORIZE_EXPENSE_PROMPT, REPORT_INSIGHT_PROMPT
+from app.core.llm.schemas import ExpenseParseResult, IncomeParseResult
+from app.core.llm.prompts import (
+    CATEGORIZE_EXPENSE_PROMPT,
+    REPORT_INSIGHT_PROMPT,
+    CATEGORIZE_INCOME_PROMPT,
+)
 
 
 async def categorize_expense(
@@ -50,3 +54,23 @@ async def generate_report_insight(report_data: dict) -> str:
 
     raw_content = response.choices[0].message.content
     return raw_content
+
+
+async def categorize_income(
+    user_text: str, existing_sources: list[str]
+) -> IncomeParseResult:
+    prompt = CATEGORIZE_INCOME_PROMPT.format(
+        user_text=user_text, existing_sources=existing_sources
+    )
+
+    async with GigaChat(
+        credentials=settings.gigachat.credentials,
+        scope=settings.gigachat.scope,
+        ca_bundle_file=settings.gigachat.ca_bundle_file,
+    ) as giga:
+        response = await giga.achat(prompt)
+
+    raw_content = response.choices[0].message.content
+    data = json.loads(raw_content)
+    result = IncomeParseResult(**data)
+    return result

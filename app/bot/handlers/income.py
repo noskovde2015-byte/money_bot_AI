@@ -27,12 +27,17 @@ async def handle_income_amount(
 ):
     try:
         income = await process_income(
-            user_id=user.id, raw_text=message.text, session=session
+            user_id=user.id, user_text=message.text, session=session
         )
     except ValueError:
         await message.answer(
-            "Похоже, это не число. Введите доход в виде числа, например: 50000"
+            "Не удалось распознать доход. Попробуй написать точнее, например: "
+            "«получил 30000 от Студии А» или просто «30000»"
         )
         return
 
-    await message.answer(f"Записал доход: {income.amount}₽")
+    text = f"Записал доход: {income.amount}₽"
+    if income.source:
+        text += f" (источник: {income.source})"
+
+    await message.answer(text)
