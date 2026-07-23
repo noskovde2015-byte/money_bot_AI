@@ -93,6 +93,23 @@ def get_month_bounds(year: int, month: int) -> tuple[datetime, datetime]:
     return start_date, end_date
 
 
+async def get_incomes_by_source(
+    user_id: int, start_date: datetime, end_date: datetime, session: AsyncSession
+) -> list[tuple[str, Decimal]]:
+    stmt = (
+        select(Income.source, func.sum(Income.amount))
+        .where(
+            Income.user_id == user_id,
+            Income.created_at >= start_date,
+            Income.created_at < end_date,
+            Income.source.is_not(None),
+        )
+        .group_by(Income.source)
+    )
+    result = await session.execute(stmt)
+    return result.all()
+
+
 async def build_monthly_report(user_id: int, session: AsyncSession) -> dict:
     today = datetime.now()
 
@@ -117,6 +134,10 @@ async def build_monthly_report(user_id: int, session: AsyncSession) -> dict:
     )
     prev_expenses = await get_total_expenses(user_id, prev_start, prev_end, session)
 
+    by_source = await get_incomes_by_source(
+        user_id, current_start, current_end, session
+    )
+
     if prev_expenses > 0:
         change_percent = float((current_expenses - prev_expenses) / prev_expenses * 100)
     else:
@@ -130,6 +151,7 @@ async def build_monthly_report(user_id: int, session: AsyncSession) -> dict:
         "harmful_total": harmful_total,
         "prev_expenses": prev_expenses,
         "change_percent": change_percent,
+        "by_source": by_source,
     }
 
 
@@ -162,22 +184,3 @@ async def build_yearly_overview(
         )
 
     return months_data
-
-
-if __name__ == "__main__":
-    import asyncio
-    from app.db.db_helper import db_helper
-
-    async def test():
-        async with db_helper.session_factory() as session:
-            report = await build_monthly_report(user_id=1, session=session)
-            print("Месячный отчёт:", report)
-
-            overview = await build_yearly_overview(
-                user_id=1, session=session, year=2026
-            )
-            print("Годовой обзор:")
-            for month in overview:
-                print(" ", month)
-
-    asyncio.run(test())

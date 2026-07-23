@@ -12,30 +12,49 @@ router = Router()
 @router.message(F.text == "Отчёт за месяц")
 async def handle_monthly_report(message: Message, user: User, session: AsyncSession):
     report_data = await build_monthly_report(user_id=user.id, session=session)
-    insight = await generate_report_insight(report_data=report_data)
 
-    category_lines = "\n".join(
-        f"  • {name}: {total}₽" for name, total in report_data["by_category"]
+    insight = await generate_report_insight(report_data=report_data)
+    insight = insight.replace("$", "")
+
+    category_lines = (
+        "\n".join(f"  • {name}: {total}₽" for name, total in report_data["by_category"])
+        or "  нет данных"
+    )
+
+    source_lines = "\n".join(
+        f"  • {name}: {total}₽" for name, total in report_data["by_source"]
     )
 
     if report_data["change_percent"] is not None:
         change_line = (
-            f"\n📈 Изменение к прошлому месяцу: {report_data['change_percent']:+.1f}%"
+            f"📈 Изменение к прошлому месяцу: {report_data['change_percent']:+.1f}%"
         )
     else:
-        change_line = "\n📈 Нет данных за прошлый месяц для сравнения"
+        change_line = "📈 Нет данных за прошлый месяц для сравнения"
 
     balance = report_data["current_incomes"] - report_data["current_expenses"]
 
-    text = (
-        f"📊 <b>Отчёт за {report_data['month_name']}</b>\n\n"
-        f"💰 Доходы: {report_data['current_incomes']}₽\n"
-        f"💸 Траты: {report_data['current_expenses']}₽\n"
-        f"⚖️ Дельта: {balance}₽\n\n"
-        f"<b>По категориям:</b>\n{category_lines}\n\n"
-        f"⚠️ Нежелательные траты: {report_data['harmful_total']}₽"
-        f"{change_line}\n\n"
-        f"💡 {insight}"
-    )
+    parts = [
+        f"📊 <b>Отчёт за {report_data['month_name']}</b>",
+        "",
+        f"💰 <b>Доходы:</b> {report_data['current_incomes']}₽",
+    ]
 
+    if source_lines:
+        parts.append(f"<b>По источникам:</b>\n{source_lines}")
+
+    parts += [
+        "",
+        f"💸 <b>Траты:</b> {report_data['current_expenses']}₽",
+        f"<b>По категориям:</b>\n{category_lines}",
+        "",
+        f"⚖️ <b>Дельта:</b> {balance}₽",
+        "",
+        f"⚠️ Нежелательные траты: {report_data['harmful_total']}₽",
+        change_line,
+        "",
+        f"💡 {insight}",
+    ]
+
+    text = "\n".join(parts)
     await message.answer(text, parse_mode="HTML")
