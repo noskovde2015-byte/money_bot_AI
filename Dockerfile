@@ -7,7 +7,7 @@ RUN pip install poetry && poetry install --no-root
 
 COPY app ./app
 COPY certs ./certs
-COPY migrations ./migrations
+COPY migration ./migration
 COPY alembic.ini ./
 COPY prestart.sh ./
 
