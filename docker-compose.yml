@@ -1,23 +1,26 @@
 services:
   app:
     build: .
+    restart: unless-stopped
     ports:
       - "8002:8002"
     depends_on:
       - db
     env_file:
       - .env
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   db:
     image: postgres:18
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql
-    ports:
-      - "5432:5432"
 
 volumes:
   postgres_data:
