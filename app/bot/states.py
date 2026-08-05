@@ -7,3 +7,7 @@ class ExpenseStates(StatesGroup):
 
 class IncomeStates(StatesGroup):
     waiting_for_income_amount = State()
+
+
+class EditCategoryStates(StatesGroup):
+    waiting_for_new_category = State()
