@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.user import User
 from app.bot.states import ExpenseStates
 from app.finance.expense_service import process_expense
+from app.bot.keyboards import get_edit_category_keyboard
 
 router = Router()
 
@@ -38,5 +39,6 @@ async def handle_expense_text(
         return
 
     await message.answer(
-        f"Внесена трата суммой {expense.amount} в категорию {expense.category.name}"
+        f"Внесена трата суммой {expense.amount} в категорию {expense.category.name}",
+        reply_markup=get_edit_category_keyboard(expense.id),
     )

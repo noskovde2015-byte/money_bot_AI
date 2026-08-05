@@ -20,3 +20,15 @@ def get_year_selection_keyboard(years: list[int]) -> InlineKeyboardMarkup:
         for year in years
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def get_edit_category_keyboard(expense_id: int) -> InlineKeyboardMarkup:
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="✏️ Изменить категорию",
+                callback_data=f"edit_category:{expense_id}",
+            )
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
