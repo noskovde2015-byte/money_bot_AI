@@ -1,31 +1,31 @@
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.user import User
+from app.bot.formatters import format_expense_card
+from app.bot.keyboards import MENU_BUTTONS, MenuButton, expense_card_keyboard
 from app.bot.states import ExpenseStates
+from app.db.user import User
 from app.finance.expense_service import process_expense
-from app.bot.keyboards import get_edit_category_keyboard
 
 router = Router()
 
-BUTTON_TEXTS = {"Внести трату", "Внести доход", "Отчёт за месяц", "Годовой отчёт"}
 
-
-@router.message(F.text == "Внести трату")
+@router.message(F.text == MenuButton.ADD_EXPENSE)
 async def start_expense_input(message: Message, state: FSMContext):
+    await state.clear()
+    await state.set_state(ExpenseStates.waiting_for_expense_text)
     await message.answer(
         "Режим ввода трат включён. Пиши траты одну за другой, например: "
         "«потратил 500 рублей на такси». Чтобы выйти — нажми любую другую кнопку."
     )
-    await state.set_state(ExpenseStates.waiting_for_expense_text)
 
 
-@router.message(ExpenseStates.waiting_for_expense_text, F.text.not_in(BUTTON_TEXTS))
-async def handle_expense_text(
-    message: Message, state: FSMContext, user: User, session: AsyncSession
-):
+@router.message(
+    ExpenseStates.waiting_for_expense_text, F.text, F.text.not_in(MENU_BUTTONS)
+)
+async def handle_expense_text(message: Message, user: User, session: AsyncSession):
     try:
         expense = await process_expense(
             user_id=user.id,
@@ -34,11 +34,13 @@ async def handle_expense_text(
         )
     except ValueError:
         await message.answer(
-            "Не удалось распознать трату. Опишите подробнее, например: «потратил 500 в магните на чипсы»"
+            "Не удалось распознать трату. Опиши подробнее, например: "
+            "«потратил 500 в магните на чипсы»"
         )
         return
 
     await message.answer(
-        f"Внесена трата суммой {expense.amount} в категорию {expense.category.name}",
-        reply_markup=get_edit_category_keyboard(expense.id),
+        f"✅ Записал\n\n{format_expense_card(expense)}",
+        reply_markup=expense_card_keyboard(expense.id),
+        parse_mode="HTML",
     )

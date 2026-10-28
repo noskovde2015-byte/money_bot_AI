@@ -5,7 +5,7 @@ from app.bot.handlers.income import router as income_router
 from app.bot.handlers.expense import router as expense_router
 from app.bot.handlers.report import router as report_router
 from app.bot.handlers.yearly_report import router as yearly_report_router
-from app.bot.handlers.edit_category import router as edit_category_router
+from app.bot.handlers.expense_actions import router as expense_actions_router
 
 
 def create_dispatcher() -> Dispatcher:
@@ -17,5 +17,5 @@ def create_dispatcher() -> Dispatcher:
     dp.include_router(expense_router)
     dp.include_router(report_router)
     dp.include_router(yearly_report_router)
-    dp.include_router(edit_category_router)
+    dp.include_router(expense_actions_router)
     return dp

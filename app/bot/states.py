@@ -9,5 +9,6 @@ class IncomeStates(StatesGroup):
     waiting_for_income_amount = State()
 
 
-class EditCategoryStates(StatesGroup):
-    waiting_for_new_category = State()
+class ExpenseEditStates(StatesGroup):
+    waiting_for_amount = State()
+    waiting_for_category_name = State()
