@@ -12,6 +12,7 @@ class ExpenseAction(StrEnum):
     EDIT_AMOUNT = "amount"
     DELETE = "del"
     DELETE_CONFIRM = "delok"
+    CLOSE = "close"
 
 
 class ExpenseCallback(CallbackData, prefix="exp"):

@@ -140,4 +140,5 @@ def recent_expenses_keyboard(expenses: list[Expense]) -> InlineKeyboardMarkup:
         ]
         for expense in expenses
     ]
+    rows.append([_expense_button("✖️ Закрыть", ExpenseAction.CLOSE)])
     return InlineKeyboardMarkup(inline_keyboard=rows)

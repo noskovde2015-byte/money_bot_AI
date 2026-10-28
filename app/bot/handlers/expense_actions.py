@@ -1,3 +1,4 @@
+from contextlib import suppress
 from html import escape
 
 from aiogram import F, Router
@@ -130,6 +131,21 @@ async def back_to_recent_list(
         return
 
     await _render(callback, RECENT_HEADER, recent_expenses_keyboard(expenses))
+
+
+@router.callback_query(ExpenseCallback.filter(F.action == ExpenseAction.CLOSE))
+async def close_recent_list(callback: CallbackQuery, state: FSMContext):
+    await _leave_edit_if_active(state)
+
+    message = callback.message
+    if isinstance(message, Message):
+        try:
+            await message.delete()
+        except TelegramBadRequest:
+            # Telegram не даёт удалять сообщения старше 48 часов — тогда просто убираем кнопки
+            with suppress(TelegramBadRequest):
+                await message.edit_reply_markup(reply_markup=None)
+    await callback.answer()
 
 
 @router.callback_query(ExpenseCallback.filter(F.action == ExpenseAction.OPEN))
